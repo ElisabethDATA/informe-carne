@@ -1,5 +1,6 @@
+import math
 import streamlit as st
-from funciones import load_data
+from funciones import load_data, plot_meat_consumption
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -50,6 +51,57 @@ def plot_subjects(ndf):
     plt.tight_layout()
     plt.show()
 
+
+paises = {
+    'AUS': 'Australia',
+    'BGD': 'Bangladesh',
+    'CAN': 'Canada',
+    'JPN': 'Japan',
+    'KOR': 'South Korea',
+    'MEX': 'Mexico',
+    'NZL': 'New Zealand',
+    'TUR': 'Turkey',
+    'USA': 'United States',
+    'ARG': 'Argentina',
+    'BRA': 'Brazil',
+    'CHL': 'Chile',
+    'CHN': 'China',
+    'COL': 'Colombia',
+    'DZA': 'Argelia',
+    'EGY': 'Egypt',
+    'ETH': 'Ethiopia',
+    'IND': 'India',
+    'IDN': 'Indonesia',
+    'IRN': 'Iran',
+    'ISR': 'Israel',
+    'KAZ': 'Kazakhstan',
+    'MYS': 'Malaysia',
+    'NGA': 'Nigeria',
+    'PAK': 'Pakistan',
+    'PRY': 'Paraguay',
+    'PER': 'Peru',
+    'PHL': 'Philippines',
+    'RUS': 'Russia',
+    'SAU': 'Saudi Arabia',
+    'ZAF': 'South Africa',
+    'THA': 'Thailand',
+    'TZA': 'Tanzania',
+    'UKR': 'Ukraine',
+    'URY': 'Uruguay',
+    'VNM': 'Vietnam',
+    'NOR': 'Norway',
+    'CHE': 'Switzerland',
+    'GBR': 'United Kingdom',
+    'GHA': 'Ghana',
+    'HTI': 'Haiti',
+    'MOZ': 'Mozambique',
+    'SDN': 'Sudan',
+    'ZMB': 'Zambia',
+    'EU27': 'European Union',
+    'WLD': 'World'
+}
+
+
 st.sidebar.title('Filtros')
 st.sidebar.subheader('Filtrar por país')
 st.sidebar.markdown("""
@@ -60,20 +112,24 @@ st.title('Gráficos')
 st.markdown("""
 En esta sección se muestran los gráficos que se han realizado para el análisis de los datos.
 """)
-
+            
 
 # SIDEBAR: FILTRO POR TIPO DE CARNE #
 st.sidebar.subheader('Filtrar por')
 tipos = {'Carne de ternera': 'BEEF', 'Carne de cerdo': 'PIG',
          'Carne de pollo (aves)': 'POULTRY', 'Carne de oveja': 'SHEEP'}
-select = st.sidebar.selectbox('Tipo de carne', [
-                              'Carne de ternera', 'Carne de cerdo', 'Carne de pollo (aves)', 'Carne de oveja'])
+select = st.selectbox('Seleccionar país', paises.values())
 
 df = load_data()
-df_select = df[df['SUBJECT'] == tipos[select]]
+df = df[df['LOCATION'] == select]
+# df_select = df[df['SUBJECT'] == tipos[select]]
 
+grafico = plot_meat_consumption(country=select)
+st.pyplot(grafico)
 
 # SIDEBAR: FILTRO POR AÑO #
 st.sidebar.subheader('Filtrar por año')
 year_to_filter = st.sidebar.slider('Año', 1990, 2023, 2028)
 df_year = select_year(df, year_to_filter)
+
+

@@ -9,7 +9,7 @@ import plotly.graph_objects as go
 from funciones import load_data
 
 # CONFIGURACIÓN DE LA PÁGINA #
-#layout="centered" or "wide"
+# layout="centered" or "wide" 🥩_
 st.set_page_config(page_title="Consumo de Carne", layout="centered", page_icon="🥩")
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
