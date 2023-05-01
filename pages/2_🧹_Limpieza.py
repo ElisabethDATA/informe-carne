@@ -1,5 +1,5 @@
 import streamlit as st
-from funciones import load_data
+from funciones import load_data, split_measure, replace_country_code
 import pandas as pd
 
 st.set_page_config(
@@ -57,26 +57,17 @@ st.markdown("""
 - La columna **"VALUE"** es el valor numérico real del consumo de carne.
 """)
 	    
-# Algo importante que resaltar es que la columna **"SUBJECT"** contiene los datos de consumo de carne de diferentes animales, por lo que se deben separar en diferentes columnas para poder analizarlos por separado.
-
-# st.subheader('Separar datos de diferentes animales')
-# st.markdown("""
-# En este apartado se separan los datos de consumo de carne de diferentes animales en diferentes columnas.
-# """)
-# # Separar datos de diferentes animales.
-# new_data = data.pivot_table(index=['LOCATION', 'SUBJECT', 'MEASURE', 'TIME'], columns='SUBJECT', values='VALUE').reset_index()
-# # Renombrar columnas.
-# new_data = new_data.rename(columns={'LOCATION': 'País', 'MEASURE': 'Medida', 'TIME': 'Año',
-#                        'BEEF': 'Carne de vacuno', 'PIG': 'Carne de cerdo', 'POULTRY': 'Carne de ave', 'SHEEP': 'Carne de oveja'})
-
-# # Eliminar columna subject porque ya no es necesaria.
-# new_data = new_data.drop(['SUBJECT'], axis=1)
-
-# # Mostrar datos sin columnas innecesarias.
-# if st.checkbox("Mostrar datos sin columnas innecesarias"):
-# 	st.write(new_data)
-
-# st.write(new_data)
+st.sidebar.subheader('Índice')
+st.sidebar.markdown("""
+- [Datos crudos](#datos-crudos)
+- [Borrar columnas innecesarias](#borrar-columnas-innecesarias)
+- [Cambio de estructura del dataset](#cambio-de-estructura-del-dataset)
+- [Cambiar códigos de país por sus nombres](#cambio-de-c-digos-de-ubicaci-n-por-sus-nombres)
+- [Comprobar valores nulos](#comprobar-valores-nulos)
+- [Cambio de estructura del dataset](#cambio-de-estructura-del-dataset)
+- [Guardar dataset final](#guardar-dataset-final)
+- [Descargar dataset final](#descargar-dataset-final)
+""")
 
 # Mostrar datos sin columnas innecesarias.
 st.subheader("Descripción de los datos")
@@ -94,11 +85,67 @@ st.write(pd.DataFrame(null_dict))
 if st.checkbox("Mostrar datos sin columnas innecesarias"):
     st.write(data)
 
-# Dimensions
-data_dim = st.radio('What Dimension Do You Want to Show', ('Rows', 'Columns'))
-if data_dim == 'Rows':
-	st.text("Showing Length of Rows")
-	st.write(len(data))
-if data_dim == 'Columns':
-	st.text("Showing Length of Columns")
-	st.write(data.shape[1])
+st.subheader('Cambio de estructura del dataset')
+st.markdown("""
+En este apartado se cambia la estructura del dataset para que cada fila contenga los datos de un país, un tipo de carne, medidas de kilogramos y toneladas y un año.
+
+Del dataset se observa que la columna measure contiene los datos de consumo de carne en kilogramos y toneladas, por lo que se deben separar en diferentes columnas para poder analizarlos por separado.
+
+Para ello, se utiliza la función **pivot_table** de pandas.
+""")
+# Cambiar estructura del dataset.
+new_data = split_measure(data)
+
+# Mostrar la nueva estructura del dataset.
+st.write(new_data)
+if st.checkbox("Mostrar descripción del nuevo dataset"):
+    st.write(new_data.describe())
+
+# Cambiar códigos de países por nombres de países.
+st.subheader('Cambio de códigos de ubicación por sus nombres')
+st.markdown("""
+En este apartado se cambian los códigos de países por sus nombres.
+
+La columna **"LOCATION"** proporciona información sobre la ubicación geográfica de los datos según su código de país. Por lo que se cambian los códigos de países por sus nombres para que sea más fácil de entender.
+
+Para ello, se utiliza la función **replace** de pandas.
+""")
+new_data = replace_country_code(new_data)
+
+st.write(new_data)
+
+# Guardar dataset final.
+st.subheader('Guardar dataset final')
+st.markdown("""
+En este apartado se guarda el dataset final en formato csv.
+""")
+
+# Guardar dataset final.
+new_data.to_csv('data/processed_data.csv', index=False)
+
+st.markdown("""
+El dataset final contiene los datos de consumo de carne de diferentes países, tipos de carne, medidas y años.
+""")
+
+st.subheader('Descripción del dataset final')
+st.write(new_data.describe())
+
+# descargar dataset final.
+st.subheader('Descargar dataset final')
+st.markdown("""
+En este apartado se descarga el dataset final en formato csv.
+""")
+            
+
+@st.cache_data
+def convert_df(df):
+    # IMPORTANT: Cache the conversion to prevent computation on every rerun
+    return df.to_csv().encode('utf-8')
+
+# Convertir dataframe a csv.
+csv = convert_df(new_data)
+# Descargar dataset final.
+st.download_button(label='Descargar dataset final', data=csv, file_name='processed_data.csv', mime='text/csv')   
+
+
+

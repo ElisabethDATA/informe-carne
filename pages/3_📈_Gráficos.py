@@ -1,6 +1,6 @@
 import math
 import streamlit as st
-from funciones import load_data, plot_meat_consumption
+from funciones import load_data, plot_meat_consumption, plot_consumption_all, split_measure, replace_country_code
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -54,7 +54,6 @@ def plot_subjects(ndf):
 
 paises = {
     'AUS': 'Australia',
-    'BGD': 'Bangladesh',
     'CAN': 'Canada',
     'JPN': 'Japan',
     'KOR': 'South Korea',
@@ -101,6 +100,10 @@ paises = {
     'WLD': 'World'
 }
 
+def prepare_data(df):
+    df = split_measure(df)
+    df = replace_country_code(df)
+    return df
 
 st.sidebar.title('Filtros')
 st.sidebar.subheader('Filtrar por país')
@@ -121,15 +124,18 @@ tipos = {'Carne de ternera': 'BEEF', 'Carne de cerdo': 'PIG',
 select = st.selectbox('Seleccionar país', paises.values())
 
 df = load_data()
-df = df[df['LOCATION'] == select]
+df = prepare_data(df)
 # df_select = df[df['SUBJECT'] == tipos[select]]
 
 grafico = plot_meat_consumption(country=select)
 st.pyplot(grafico)
+st.markdown('En el gráfico anterior, la línea representa el consumo per cápita de carne en kg, mientras que las barras representan el consumo total de carne en toneladas.')
 
 # SIDEBAR: FILTRO POR AÑO #
 st.sidebar.subheader('Filtrar por año')
 year_to_filter = st.sidebar.slider('Año', 1990, 2023, 2028)
 df_year = select_year(df, year_to_filter)
 
-
+st.subheader('Consumo de carne en ' + str(select) + ' (2000-2028)')
+grafico2 = plot_consumption_all(df, country=select)
+st.pyplot(grafico2)
