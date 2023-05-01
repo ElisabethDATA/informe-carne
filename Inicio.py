@@ -30,7 +30,7 @@ with st.container():
     st.title('Consumo de carne en el mundo')
     st.markdown("""
     * **Objetivo:** Analizar el consumo de carne en el mundo.
-    * **Fuente:** [Our World in Data](https://ourworldindata.org/meat-production)
+    * **Fuente:** [Consumo mundial de carne](https://www.kaggle.com/datasets/allenkong/worldwide-meat-consumption)
     """)
     st.image('img/carne.jpg')
     st.text('Imagen de https://www.agronewscomunitatvalenciana.com/')
