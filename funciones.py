@@ -9,7 +9,7 @@ sns.set_theme(style = 'dark', palette = 'deep')
 dataset = 'data/meat_consumption.csv'
 
 @st.cache_data
-def load_data():
+def load_data(dataset='data/meat_consumption.csv'):
     df = pd.read_csv(dataset)
     # Transformar los títulos de columnas a mayúsculas.
     df.columns = [column.upper() for column in df.columns]
@@ -31,6 +31,7 @@ def split_measure(df):
     df_pivot = df_pivot.reset_index()
     df_pivot.columns.name = ''
     return df_pivot
+
 
 def replace_country_code(df):
     paises = {
@@ -88,6 +89,7 @@ def replace_country_code(df):
 
 
 def plot_meat_consumption(df=data, country='World'):
+    
     ndf = split_measure(data)
     ndf = replace_country_code(ndf)
 
@@ -101,8 +103,10 @@ def plot_meat_consumption(df=data, country='World'):
     thnd_tonne_wld = thnd_tonne[thnd_tonne['LOCATION'] == country]
 
     subjects = ndf['SUBJECT'].unique()
+    valor_maximo_kg = kg_cap_wld['KG_CAP'].max() + 10
+    valor_maximo_thnd = thnd_tonne_wld['THND_TONNE'].max() + 10
 
-    fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(12, 8))
+    fig = plt.figure(figsize=(12, 8))
 
     colors = sns.color_palette('Paired', n_colors=len(subjects)*2+1)
 
@@ -110,18 +114,23 @@ def plot_meat_consumption(df=data, country='World'):
         row = i // 2
         col = i % 2
 
-        data1 = thnd_tonne_wld[thnd_tonne_wld['SUBJECT'] == subject]
-        axs[row, col].bar(data1['TIME'], data1['THND_TONNE'], color=colors[i*2])
-        axs[row, col].set_ylabel("Miles de Toneladas", fontsize=12)
+        ax = plt.subplot(2, 2, i+1)
 
-        ax2 = axs[row, col].twinx()
+        data1 = thnd_tonne_wld[thnd_tonne_wld['SUBJECT'] == subject]
+        ax.bar(data1['TIME'], data1['THND_TONNE'], color=colors[i*2])
+        ax.set_ylabel("Miles de Toneladas", fontsize=12)
+
+        ax2 = ax.twinx()
 
         data2 = kg_cap_wld[kg_cap_wld['SUBJECT'] == subject]
         ax2.plot(data2['TIME'], data2['KG_CAP'], color=colors[i*2+1])
 
         ax2.set_ylabel("Kg per cápita", fontsize=10)
 
-        axs[row, col].set_title(tipos[subject])
+        ax2.set_ylim(bottom=0, top=valor_maximo_kg+10)
+
+        ax.set_title(tipos[subject])
+        ax.set_ylim(bottom=0, top=valor_maximo_thnd*1.1)
 
     plt.tight_layout()
 
@@ -153,5 +162,47 @@ def plot_consumption_all(df=data, country='World'):
     ax.set_ylabel('Kg per cápita')
     ax.set_xlabel('Año')
     ax.legend(loc='upper left')
+
+    return fig
+
+# Grafico por tipo de carne
+def plot_meat_subject(df=data, subject='BEEF', country='World'):
+    ndf = split_measure(data)
+    ndf = replace_country_code(ndf)
+
+    tipos = {'BEEF': 'Ternera', 'PIG': 'Cerdo',
+             'POULTRY': 'Pollo (Aves)', 'SHEEP': 'Cordero'}
+    # filtrar los datos por país
+    kg_cap = ndf.loc[ndf['TIME'] > 1993]
+    thnd_tonne = ndf.loc[ndf['TIME'] > 1993]
+
+    kg_cap_wld = kg_cap.loc[(kg_cap['LOCATION'] == country) & (kg_cap['SUBJECT'] == subject)]
+    thnd_tonne_wld = thnd_tonne.loc[(thnd_tonne['LOCATION'] == country) & (thnd_tonne['SUBJECT'] == subject)]
+
+    subjects = ndf['SUBJECT'].unique()
+    colors = sns.color_palette('Paired', n_colors=len(subjects)*2+1)
+
+    subject_color = {'BEEF': 0, 'PIG': 2, 'POULTRY': 4, 'SHEEP': 6}
+    
+    fig, ax = plt.subplots()
+
+    ax.set_ylabel("Miles de Toneladas", fontsize=12)
+    ax.bar(thnd_tonne_wld['TIME'], thnd_tonne_wld['THND_TONNE'], color=colors[subject_color[subject]], label='Producción', alpha=0.7)
+    
+    ax1 = ax.twinx()
+    ax1.set_ylabel('Kg per cápita')
+    ax1.plot(kg_cap_wld['TIME'], kg_cap_wld['KG_CAP'],
+             linestyle='--', label='Consumo Kg/Cap', color=colors[subject_color[subject]+1])
+    
+    ax.set_title(f'Producción y consumo de {tipos[subject]} en {country} (1993-2025)')
+    ax.set_xlabel('Año')
+    ax.legend(loc='upper left')
+    ax1.legend(loc='upper right')
+
+    # Ajustar límites con margen superior del 10%
+    # ax.set_ylim(0, max(thnd_tonne_wld['THND_TONNE'])*1.1)
+    ax1.set_ylim(bottom=0, top=max(kg_cap_wld['KG_CAP'])*1.3)
+
+    ax.margins(y=0.1)
 
     return fig

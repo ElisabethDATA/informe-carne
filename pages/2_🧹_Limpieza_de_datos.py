@@ -10,15 +10,25 @@ st.set_page_config(
 # ------- íNDICE ---------- #
 st.sidebar.subheader('Índice')
 st.sidebar.markdown("""
-- [Datos crudos](#datos-crudos)
-- [Borrar columnas innecesarias](#borrar-columnas-innecesarias)
-- [Cambio de estructura del dataset](#cambio-de-estructura-del-dataset)
-- [Cambiar códigos de país por sus nombres](#cambio-de-c-digos-de-ubicaci-n-por-sus-nombres)
-- [Comprobar valores nulos](#comprobar-valores-nulos)
-- [Cambio de estructura del dataset](#cambio-de-estructura-del-dataset)
-- [Guardar dataset final](#guardar-dataset-final)
-- [Descargar dataset final](#descargar-dataset-final)
-""")
+<style>
+    .indice {list-style: none;}
+    .indice li a {text-decoration: none; color: #000;}
+    .indice li a:hover {color: #FF4B4B;}
+</style>
+<ul class="indice">
+    <li><a href="#datos-crudos">Datos crudos</a></li>
+    <li><a href="#borrar-columnas-innecesarias">Borrar columnas innecesarias</a></li>
+    <li><a href="#cambio-de-estructura-del-dataset">Cambio de estructura del dataset</a></li>
+    <li><a href="#cambio-de-c-digos-de-ubicaci-n-por-sus-nombres">Cambiar códigos de país por sus nombres</a></li>
+    <li><a href="#comprobar-valores-nulos">Comprobar valores nulos</li</a>
+    <li><a href="#cambio-de-estructura-del-dataset">Cambio de estructura del dataset</a></li>
+    <li><a href="#guardar-dataset-final">Guardar dataset final</a></li>
+    <li><a href="#descargar-dataset-final">Descargar dataset final</a></li>
+</ul>
+""", unsafe_allow_html=True)
+
+st.sidebar.divider()
+codigo = st.sidebar.checkbox("Mostrar bloques de código", key="code_blocks")
                     
 
 # ------- LIMPIEZA DE DATOS ---------- #
@@ -26,7 +36,6 @@ st.title('Limpieza de datos')
 st.markdown("""
 En esta sección se muestra el proceso de limpieza de datos realizado para obtener el dataset final.
 """)
-
 
 #
 # Crear un texto para que el usuario sepa que el dataset está cargando.
@@ -37,9 +46,29 @@ data = load_data()
 data_load_state.text("Hecho! Los datos se han cargado correctamente.")
 
 
+
 #
 # Mostrar datos sin procesar.
 st.subheader('Datos crudos')
+
+# Mostrar código
+if codigo:
+    st.markdown("""
+    ```python
+    # Cargar datos
+    def load_data():
+        df = pd.read_csv(dataset)
+        # Transformar los títulos de columnas a mayúsculas.
+        df.columns = [column.upper() for column in df.columns]
+        return df
+
+    data = load_data()
+
+    # Mostrar las primeras 5 filas del dataset.
+    data.head()
+    ```
+    """)
+
 st.markdown("""
 A continuación se muestran los las primeras 5 filas del dataset.
 """)
@@ -58,9 +87,16 @@ st.markdown("""
 En este apartado se eliminan las columnas que no son necesarias para el análisis.
 Eliminamos las columnas **"INDICATOR"** y **"FREQUENCY"** porque no aportan información relevante para el análisis.
 """)
+if codigo:
+    st.markdown("""
+    ```python
+    # Eliminar columnas INDICATOR y FREQUENCY
+    data = data.drop(['INDICATOR', 'FREQUENCY'], axis=1)
+    ```
+    """)
 # Eliminar columnas INDICATOR y FREQUENCY
 data = data.drop(['INDICATOR', 'FREQUENCY'], axis=1)
-
+st.text("")
 
 #
 # Mostrar datos sin columnas innecesarias.

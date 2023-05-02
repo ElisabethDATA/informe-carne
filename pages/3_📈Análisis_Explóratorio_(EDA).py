@@ -1,6 +1,6 @@
 import math
 import streamlit as st
-from funciones import load_data, plot_meat_consumption, plot_consumption_all, split_measure, replace_country_code
+from funciones import load_data, plot_meat_consumption, plot_consumption_all, plot_meat_subject, split_measure, replace_country_code
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -129,6 +129,38 @@ df = load_data()
 df = prepare_data(df)
 # df_select = df[df['SUBJECT'] == tipos[select]]
 
+st.subheader('Consumo por tipo de carne')
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["Todos", "Ternera", "Cerdo", "Aves", "Cordero"])
+
+
+with tab1:
+    st.subheader('Consumo de carne en ' + str(select) + ' (2000-2028)')
+    grafico2 = plot_consumption_all(df, country=select)
+    st.pyplot(grafico2)
+
+
+with tab2:
+   st.header("Ternera")
+   grafico_ternera = plot_meat_subject(df, country=select, subject='BEEF')
+   st.pyplot(grafico_ternera)
+
+with tab3:
+   st.header("Cerdo")
+   grafico_cerdo = plot_meat_subject(df, country=select, subject='PIG')
+   st.pyplot(grafico_cerdo)
+
+with tab4:
+   st.header("Aves")
+   grafico_aves = plot_meat_subject(df, country=select, subject='POULTRY')
+   st.pyplot(grafico_aves)
+
+with tab5:
+    st.header("Cordero")
+    grafico_cordero = plot_meat_subject(df, country=select, subject='SHEEP')
+    st.pyplot(grafico_cordero)
+
+
+
 grafico = plot_meat_consumption(country=select)
 with st.spinner('Cargando gráfico...'):
     st.pyplot(grafico)
@@ -139,7 +171,3 @@ with st.spinner('Cargando gráfico...'):
 st.sidebar.subheader('Filtrar por año')
 year_to_filter = st.sidebar.slider('Año', 1990, 2023, 2028)
 df_year = select_year(df, year_to_filter)
-
-st.subheader('Consumo de carne en ' + str(select) + ' (2000-2028)')
-grafico2 = plot_consumption_all(df, country=select)
-st.pyplot(grafico2)
