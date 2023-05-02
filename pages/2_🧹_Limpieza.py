@@ -7,13 +7,28 @@ st.set_page_config(
     page_icon="🧹",
 )
 
+# ------- íNDICE ---------- #
+st.sidebar.subheader('Índice')
+st.sidebar.markdown("""
+- [Datos crudos](#datos-crudos)
+- [Borrar columnas innecesarias](#borrar-columnas-innecesarias)
+- [Cambio de estructura del dataset](#cambio-de-estructura-del-dataset)
+- [Cambiar códigos de país por sus nombres](#cambio-de-c-digos-de-ubicaci-n-por-sus-nombres)
+- [Comprobar valores nulos](#comprobar-valores-nulos)
+- [Cambio de estructura del dataset](#cambio-de-estructura-del-dataset)
+- [Guardar dataset final](#guardar-dataset-final)
+- [Descargar dataset final](#descargar-dataset-final)
+""")
+                    
 
-# LIMPIEZA DE DATOS #
+# ------- LIMPIEZA DE DATOS ---------- #
 st.title('Limpieza de datos')
 st.markdown("""
 En esta sección se muestra el proceso de limpieza de datos realizado para obtener el dataset final.
 """)
 
+
+#
 # Crear un texto para que el usuario sepa que el dataset está cargando.
 data_load_state = st.text('Cargando datos...')
 # Iniciar carga de datos.
@@ -21,6 +36,9 @@ data = load_data()
 # Notificar al usuario que los datos se han cargado correctamente.
 data_load_state.text("Hecho! Los datos se han cargado correctamente.")
 
+
+#
+# Mostrar datos sin procesar.
 st.subheader('Datos crudos')
 st.markdown("""
 A continuación se muestran los las primeras 5 filas del dataset.
@@ -33,22 +51,22 @@ if st.checkbox('Mostrar todo el dataset sin procesar'):
         f"El dataset original contiene {dimension[0]} filas y {dimension[1]} columnas.")
 
 
+#
+# Borrar columnas innecesarias.
 st.subheader('Borrar columnas innecesarias')
 st.markdown("""
 En este apartado se eliminan las columnas que no son necesarias para el análisis.
-
 Eliminamos las columnas **"INDICATOR"** y **"FREQUENCY"** porque no aportan información relevante para el análisis.
 """)
-# Eliminar columnas innecesarias.
+# Eliminar columnas INDICATOR y FREQUENCY
 data = data.drop(['INDICATOR', 'FREQUENCY'], axis=1)
 
 
+#
 # Mostrar datos sin columnas innecesarias.
-if st.checkbox("Mostrar todas las columnas"):
+if st.checkbox("Mostrar las columnas seleccionadas para el analisis"):
 	st.text("Columns:")
 	st.write(data.columns)
-
-
 st.markdown("""
 - La columna **"LOCATION"** proporciona información sobre la ubicación geográfica de los datos.
 - La columna **"SUBJECT"** describe el tipo de carne.
@@ -56,19 +74,9 @@ st.markdown("""
 - La columna **"TIME"** describe el período de tiempo durante el cual se recopilaron los datos (año).
 - La columna **"VALUE"** es el valor numérico real del consumo de carne.
 """)
-	    
-st.sidebar.subheader('Índice')
-st.sidebar.markdown("""
-- [Datos crudos](#datos-crudos)
-- [Borrar columnas innecesarias](#borrar-columnas-innecesarias)
-- [Cambio de estructura del dataset](#cambio-de-estructura-del-dataset)
-- [Cambiar códigos de país por sus nombres](#cambio-de-c-digos-de-ubicaci-n-por-sus-nombres)
-- [Comprobar valores nulos](#comprobar-valores-nulos)
-- [Cambio de estructura del dataset](#cambio-de-estructura-del-dataset)
-- [Guardar dataset final](#guardar-dataset-final)
-- [Descargar dataset final](#descargar-dataset-final)
-""")
 
+
+#
 # Mostrar datos sin columnas innecesarias.
 st.subheader("Descripción de los datos")
 st.write(data.describe())
@@ -85,6 +93,9 @@ st.write(pd.DataFrame(null_dict))
 if st.checkbox("Mostrar datos sin columnas innecesarias"):
     st.write(data)
 
+
+#
+# Cambiar estructura del dataset.
 st.subheader('Cambio de estructura del dataset')
 st.markdown("""
 En este apartado se cambia la estructura del dataset para que cada fila contenga los datos de un país, un tipo de carne, medidas de kilogramos y toneladas y un año.
@@ -95,11 +106,12 @@ Para ello, se utiliza la función **pivot_table** de pandas.
 """)
 # Cambiar estructura del dataset.
 new_data = split_measure(data)
-
 # Mostrar la nueva estructura del dataset.
 st.write(new_data)
 if st.checkbox("Mostrar descripción del nuevo dataset"):
     st.write(new_data.describe())
+
+
 
 # Cambiar códigos de países por nombres de países.
 st.subheader('Cambio de códigos de ubicación por sus nombres')
@@ -111,8 +123,20 @@ La columna **"LOCATION"** proporciona información sobre la ubicación geográfi
 Para ello, se utiliza la función **replace** de pandas.
 """)
 new_data = replace_country_code(new_data)
-
 st.write(new_data)
+# Comprobar valores nulos.
+st.markdown("""Luego de haber modificado la estructura del dataset comprobamos nuevamente la existencia de valores nulos. Esta vez se observa que han aparecido valores nulos en la columna **\"KG_CAP\"**. Se debe a que no todos los países tienen datos de consumo de carne en kilogramos por persona para   .""")
+null_counts = new_data.isnull().sum()
+null_dict = {'Valores nulos': null_counts}
+st.write(pd.DataFrame(null_dict))
+
+st.markdown("""En este caso, la ubicación geográfica de los datos es la misma para todos los valores nulos, por lo que se puede eliminar la fila completa sin afectar el análisis.""")
+# Encontrar filas con valores nulos.
+mask = new_data.isnull().any(axis=1)
+df_nulos = new_data[mask]
+st.write(df_nulos)
+# Eliminar filas con valores nulos.
+new_data = new_data.dropna()
 
 # Guardar dataset final.
 st.subheader('Guardar dataset final')

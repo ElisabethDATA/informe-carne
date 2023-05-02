@@ -6,7 +6,6 @@ import pandas as pd
 import seaborn as sns
 import plotly_express as px
 import plotly.graph_objects as go
-from funciones import load_data
 
 # CONFIGURACIÓN DE LA PÁGINA #
 # layout="centered" or "wide" 🥩_
@@ -21,6 +20,7 @@ st.sidebar.markdown("""
 * **Filtrar por:** Selecciona el tipo de carne que deseas ver.
 * **Filtrar por año:** Selecciona el año que deseas ver.
 """)
+st.sidebar.divider()
 st.sidebar.markdown("""
 * **Nota:** El consumo de carne se mide en kilogramos por persona al año.
 """)
@@ -29,8 +29,8 @@ st.sidebar.markdown("""
 with st.container():
     st.title('Consumo de carne en el mundo')
     st.markdown("""
-    * **Objetivo:** Analizar el consumo de carne en el mundo.
-    * **Fuente:** [Consumo mundial de carne](https://www.kaggle.com/datasets/allenkong/worldwide-meat-consumption)
+    - **Objetivo:** Analizar el consumo de carne en el mundo.
+    - **Fuente:** [Consumo mundial de carne](https://www.kaggle.com/datasets/allenkong/worldwide-meat-consumption)
     """)
     st.image('img/carne.jpg')
     st.text('Imagen de https://www.agronewscomunitatvalenciana.com/')
@@ -60,15 +60,4 @@ with st.container():
     * **Licencia:** [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/)
     """)
 
-# COSAS QUE VAMOS A USAR EN TODA LA APP #
-
-df = load_data()
-
-def select_location(location):
-    df_location = df[df['LOCATION'] == location]
-    return df_location
-
-def select_year(year):
-    df_year = df[df['TIME'] == year]
-    return df_year
 

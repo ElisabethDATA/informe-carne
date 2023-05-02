@@ -4,6 +4,7 @@ from funciones import load_data, plot_meat_consumption, plot_consumption_all, sp
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import time
 
 st.set_page_config(
     page_title="Gráficos",
@@ -66,7 +67,6 @@ paises = {
     'CHL': 'Chile',
     'CHN': 'China',
     'COL': 'Colombia',
-    'DZA': 'Argelia',
     'EGY': 'Egypt',
     'ETH': 'Ethiopia',
     'IND': 'India',
@@ -121,15 +121,19 @@ En esta sección se muestran los gráficos que se han realizado para el análisi
 st.sidebar.subheader('Filtrar por')
 tipos = {'Carne de ternera': 'BEEF', 'Carne de cerdo': 'PIG',
          'Carne de pollo (aves)': 'POULTRY', 'Carne de oveja': 'SHEEP'}
-select = st.selectbox('Seleccionar país', paises.values())
+
+lista_paises = sorted(list(paises.values()))
+select = st.selectbox('Seleccionar país', lista_paises)
 
 df = load_data()
 df = prepare_data(df)
 # df_select = df[df['SUBJECT'] == tipos[select]]
 
 grafico = plot_meat_consumption(country=select)
-st.pyplot(grafico)
-st.markdown('En el gráfico anterior, la línea representa el consumo per cápita de carne en kg, mientras que las barras representan el consumo total de carne en toneladas.')
+with st.spinner('Cargando gráfico...'):
+    st.pyplot(grafico)
+    st.markdown('En el gráfico anterior, la línea representa el consumo per cápita de carne en kg, mientras que las barras representan el consumo total de carne en toneladas.')
+
 
 # SIDEBAR: FILTRO POR AÑO #
 st.sidebar.subheader('Filtrar por año')
