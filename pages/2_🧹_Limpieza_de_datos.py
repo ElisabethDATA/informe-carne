@@ -115,6 +115,14 @@ st.markdown("""
 #
 # Mostrar datos sin columnas innecesarias.
 st.subheader("Descripción de los datos")
+if codigo:
+    st.markdown("""
+    ```python
+    # Descripción de los datos
+    data.describe()
+    ```
+    """)
+st.text("")
 st.write(data.describe())
 
 st.subheader('Comprobar valores nulos')
@@ -124,6 +132,14 @@ En este apartado se comprueba si hay valores nulos en el dataset.
 # Comprobar valores nulos.
 null_counts = data.isnull().sum()
 null_dict = {'Valores nulos': null_counts}
+if codigo:
+    st.markdown("""
+    ```python
+    # Comprobar valores nulos.
+    data.isnull().sum()
+    ```
+    """)
+st.text("")
 st.write(pd.DataFrame(null_dict))
 
 if st.checkbox("Mostrar datos sin columnas innecesarias"):
@@ -143,9 +159,7 @@ Para ello, se utiliza la función **pivot_table** de pandas.
 # Cambiar estructura del dataset.
 new_data = split_measure(data)
 # Mostrar la nueva estructura del dataset.
-st.write(new_data)
-if st.checkbox("Mostrar descripción del nuevo dataset"):
-    st.write(new_data.describe())
+st.write(new_data.head(2))
 
 
 
@@ -160,6 +174,8 @@ Para ello, se utiliza la función **replace** de pandas.
 """)
 new_data = replace_country_code(new_data)
 st.write(new_data)
+if st.checkbox("Mostrar descripción del nuevo dataset"):
+    st.write(new_data.describe())
 # Comprobar valores nulos.
 st.markdown("""Luego de haber modificado la estructura del dataset comprobamos nuevamente la existencia de valores nulos. Esta vez se observa que han aparecido valores nulos en la columna **\"KG_CAP\"**. Se debe a que no todos los países tienen datos de consumo de carne en kilogramos por persona para   .""")
 null_counts = new_data.isnull().sum()

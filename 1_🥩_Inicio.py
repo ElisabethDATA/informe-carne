@@ -13,18 +13,6 @@ st.set_page_config(page_title="Consumo de Carne", layout="centered", page_icon="
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
 
-# SIDEBAR #
-st.sidebar.title('Menú')
-st.sidebar.markdown("""
-* **Visualización:** Selecciona el tipo de visualización que deseas ver.
-* **Filtrar por:** Selecciona el tipo de carne que deseas ver.
-* **Filtrar por año:** Selecciona el año que deseas ver.
-""")
-st.sidebar.divider()
-st.sidebar.markdown("""
-* **Nota:** El consumo de carne se mide en kilogramos por persona al año.
-""")
-
 # PÁGINA PRINCIPAL#
 with st.container():
     st.title('Consumo de carne en el mundo')
@@ -56,8 +44,4 @@ with st.container():
     st.markdown("""
     * **Datos:** [GitHub](https://raw.githubusercontent.com/ElisabethDATA/informe-carne/master/data/meat_consumption.csv)
     """)
-    st.markdown("""
-    * **Licencia:** [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/)
-    """)
-
 

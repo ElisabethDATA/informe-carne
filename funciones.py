@@ -8,6 +8,8 @@ sns.set_theme(style = 'dark', palette = 'deep')
 # CARGA DE DATOS #
 dataset = 'data/meat_consumption.csv'
 
+
+
 @st.cache_data
 def load_data(dataset='data/meat_consumption.csv'):
     df = pd.read_csv(dataset)
@@ -17,9 +19,17 @@ def load_data(dataset='data/meat_consumption.csv'):
 
 data = load_data()
 
+tipos = {'BEEF': 'Ternera', 'PIG': 'Cerdo',
+         'POULTRY': 'Pollo (Aves)', 'SHEEP': 'Cordero'}
+subjects = data['SUBJECT'].unique()
+colors = sns.color_palette('Paired', n_colors=len(subjects)*2+1)
+subject_color = {'BEEF': 0, 'PIG': 2, 'POULTRY': 4, 'SHEEP': 6}
+
 # Eliminar columnas innecesarias.
 data = data.drop(['INDICATOR', 'FREQUENCY'], axis=1)
 
+
+@st.cache_data
 def split_measure(df):
 
     # Seleccionar columnas de interés
@@ -33,6 +43,7 @@ def split_measure(df):
     return df_pivot
 
 
+@st.cache_data
 def replace_country_code(df):
     paises = {
         'AUS': 'Australia',
@@ -88,13 +99,15 @@ def replace_country_code(df):
     return df
 
 
+@st.cache_data
 def plot_meat_consumption(df=data, country='World'):
     
     ndf = split_measure(data)
     ndf = replace_country_code(ndf)
 
-    tipos = {'BEEF': 'Ternera', 'PIG': 'Cerdo',
-             'POULTRY': 'Pollo (Aves)', 'SHEEP': 'Cordero'}
+    if country == 'European Union':
+        ndf = ndf[ndf['TIME'] >= 2000]
+
     # filtrar los datos por país
     kg_cap = ndf
     thnd_tonne = ndf
@@ -137,17 +150,22 @@ def plot_meat_consumption(df=data, country='World'):
     return fig
 
 
+@st.cache_data
 def plot_consumption_all(df=data, country='World'):
+
+    if country == 'European Union':
+        year = 1999
+    else:
+        year = 1992
+
     beef = df.loc[(df['SUBJECT'] == 'BEEF') & (
-        df['LOCATION'] == country) & (df['TIME'] > 1999)]
-
-
+        df['LOCATION'] == country) & (df['TIME'] > year)]
     pig = df.loc[(df['SUBJECT'] == 'PIG') & (
-        df['LOCATION'] == country) & (df['TIME'] > 1999)]
+        df['LOCATION'] == country) & (df['TIME'] > year)]
     poultry = df.loc[(df['SUBJECT'] == 'POULTRY') & (
-        df['LOCATION'] == country) & (df['TIME'] > 1999)]
+        df['LOCATION'] == country) & (df['TIME'] > year)]
     sheep = df.loc[(df['SUBJECT'] == 'SHEEP') & (
-        df['LOCATION'] == country) & (df['TIME'] > 1999)]
+        df['LOCATION'] == country) & (df['TIME'] > year)]
 
     fig, ax = plt.subplots()
 
@@ -157,8 +175,7 @@ def plot_consumption_all(df=data, country='World'):
     ax.plot(poultry['TIME'], poultry['KG_CAP'],
             color='red', linestyle=':', label='Aves')
     ax.plot(sheep['TIME'], sheep['KG_CAP'],
-            color='orange', linestyle='-.', label='Oveja')
-    #ax.set_title(f'Consumo de carne en la {country} (2000-2025)')
+            color='orange', linestyle='-.', label='Cordero')
     ax.set_ylabel('Kg per cápita')
     ax.set_xlabel('Año')
     ax.legend(loc='upper left')
@@ -166,23 +183,23 @@ def plot_consumption_all(df=data, country='World'):
     return fig
 
 # Grafico por tipo de carne
+@st.cache_data
 def plot_meat_subject(df=data, subject='BEEF', country='World'):
+
+    if country == 'European Union':
+        year = 2000
+    else:
+        year = 1993
+
     ndf = split_measure(data)
     ndf = replace_country_code(ndf)
 
-    tipos = {'BEEF': 'Ternera', 'PIG': 'Cerdo',
-             'POULTRY': 'Pollo (Aves)', 'SHEEP': 'Cordero'}
     # filtrar los datos por país
-    kg_cap = ndf.loc[ndf['TIME'] > 1993]
-    thnd_tonne = ndf.loc[ndf['TIME'] > 1993]
+    kg_cap = ndf.loc[ndf['TIME'] > year]
+    thnd_tonne = ndf.loc[ndf['TIME'] > year]
 
     kg_cap_wld = kg_cap.loc[(kg_cap['LOCATION'] == country) & (kg_cap['SUBJECT'] == subject)]
     thnd_tonne_wld = thnd_tonne.loc[(thnd_tonne['LOCATION'] == country) & (thnd_tonne['SUBJECT'] == subject)]
-
-    subjects = ndf['SUBJECT'].unique()
-    colors = sns.color_palette('Paired', n_colors=len(subjects)*2+1)
-
-    subject_color = {'BEEF': 0, 'PIG': 2, 'POULTRY': 4, 'SHEEP': 6}
     
     fig, ax = plt.subplots()
 
@@ -201,8 +218,56 @@ def plot_meat_subject(df=data, subject='BEEF', country='World'):
 
     # Ajustar límites con margen superior del 10%
     # ax.set_ylim(0, max(thnd_tonne_wld['THND_TONNE'])*1.1)
-    ax1.set_ylim(bottom=0, top=max(kg_cap_wld['KG_CAP'])*1.3)
+    ax1.set_ylim(bottom=0, top=kg_cap_wld['KG_CAP'].max()*1.3)
 
     ax.margins(y=0.1)
 
+    return fig
+
+
+@st.cache_data
+def plot_top_consumers(data, subject='BEEF', year=2018, n=10):
+    # Filtrar los datos por año y tipo de carne
+    data = data[(data['TIME'] == year) & (data['SUBJECT'] == subject)]
+
+    # Ordenar los países por consumo descendente
+    data = data.sort_values('KG_CAP', ascending=False)
+
+    # Tomar los n países con mayor consumo
+    data = data.head(n)
+
+    # Crear un gráfico de barras horizontal
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.barplot(x='KG_CAP', y='LOCATION', data=data,
+                color=colors[subject_color[subject]])
+
+    # Configurar el título y los ejes
+    ax.set_title(f'Mayores consumidores de carne de {tipos[subject]} en {year}')
+    ax.set_xlabel('Consumo per cápita (kg)')
+    ax.set_ylabel('Países')
+
+    return fig
+
+
+@st.cache_data
+def plot_dispersion(df=data, year=2023):
+
+    # Crear un DataFrame con los datos de interés
+    filtered_data = df.loc[df['TIME'] == year]
+
+    # Colores de cajas
+    colores = [colors[subject_color[subject]] for subject in filtered_data['SUBJECT']]
+
+    filtered_data.loc[:, 'SUBJECT'] = filtered_data['SUBJECT'].replace(tipos)
+
+    # Crear el gráfico de dispersión
+    fig, ax = plt.subplots(figsize=(8, 6))
+    sns.boxplot(data=filtered_data, x="SUBJECT", y="KG_CAP", palette=colores, ax=ax)
+
+    # Configurar los títulos y etiquetas de los ejes
+    plt.title(f"Consumo de carne por tipo ({year})")
+    plt.xlabel("Tipo de carne")
+    plt.ylabel("Kg per cápita)")
+
+    # Mostrar el gráfico
     return fig
