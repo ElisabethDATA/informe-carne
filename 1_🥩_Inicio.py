@@ -33,10 +33,10 @@ with st.container():
     En definitiva, el análisis de consumo de carne a nivel mundial puede proporcionar información valiosa para los responsables de la formulación de políticas, los investigadores y los consumidores interesados en tomar decisiones informadas sobre su alimentación y su impacto en el medio ambiente.
     """)
     st.markdown("""
-    * **Autor:** [Elisabeth Pérez](https://www.linkedin.com/in/elisabethperezruiz)
+    * **Autora:** [Elisabeth Pérez](https://www.linkedin.com/in/elisabethperezruiz)
     """)
     st.markdown("""
-    * **Fecha:** 02/05/2023
+    * **Fecha:** 03/05/2023
     """)
     st.markdown("""
     * **Código:** [GitHub](https://github.com/ElisabethDATA/informe-carne)
