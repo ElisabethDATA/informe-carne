@@ -1,10 +1,8 @@
-import math
 import streamlit as st
 from funciones import load_data, plot_meat_consumption, plot_consumption_all, plot_meat_subject, split_measure, replace_country_code, plot_top_consumers, plot_dispersion
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import time
 
 st.set_page_config(
     page_title="Gráficos",
