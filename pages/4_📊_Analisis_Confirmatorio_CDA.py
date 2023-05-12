@@ -34,7 +34,7 @@ def linear_regression(data, country, meat_type):
 
     # Crear figura seaborn
     fig, ax = plt.subplots()
-    sns.regplot(x=x, y=y, ax=ax)
+    sns.regplot(x=x, y=y, ax=ax) # Añadir regresión lineal para visualizar tendencia
     ax.set_xlabel('Año')
     ax.set_ylabel('Consumo de carne per cápita (kg)')
     ax.set_title(f'{tipos[meat_type]} - {country}')

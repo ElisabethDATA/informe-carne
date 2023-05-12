@@ -76,8 +76,7 @@ st.write(data.head())
 if st.checkbox('Mostrar todo el dataset sin procesar'):
     dimension = data.shape
     st.write(data)
-    st.write(
-        f"El dataset original contiene {dimension[0]} filas y {dimension[1]} columnas.")
+    st.write(f"El dataset original contiene {dimension[0]} filas y {dimension[1]} columnas.")
 
 
 #

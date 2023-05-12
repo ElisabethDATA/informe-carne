@@ -28,20 +28,20 @@ def plot_subjects(ndf):
 
     fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(12, 8))
 
-    colors = sns.color_palette('Paired', n_colors=len(subjects)*2+1)
+    colors = sns.color_palette('Paired', n_colors=len(subjects)*2+1) # Paleta de 10 colores por pares
 
     for i, subject in enumerate(subjects):
         row = i // 2
         col = i % 2
 
         data1 = thnd_tonne_wld[thnd_tonne_wld['SUBJECT'] == subject]
-        axs[row, col].bar(data1['TIME'], data1['VALUE'], color=colors[i*2])
+        axs[row, col].bar(data1['TIME'], data1['VALUE'], color=colors[i*2]) # Barra de miles de toneladas colores impares
         axs[row, col].set_ylabel("Miles de Toneladas", fontsize=12)
 
         ax2 = axs[row, col].twinx()
 
         data2 = kg_cap_wld[kg_cap_wld['SUBJECT'] == subject]
-        ax2.plot(data2['TIME'], data2['VALUE'], color=colors[i*2+1])
+        ax2.plot(data2['TIME'], data2['VALUE'], color=colors[i*2+1]) # Linea de Kg per cápita colores pares
 
         ax2.set_ylabel("Kg per cápita", fontsize=10)
 
@@ -91,10 +91,11 @@ df = load_data()
 df = prepare_data(df)
 
 
-# GRAFICO DE DISTRIBUCION DE CONSUMO POR TIPO DE CARNE #
+# GRAFICO DE DISTRIBUCION DE CONSUMO POR TIPO DE CARNE GRAFÍCO CAJAS Y BIGOTES#
 st.subheader('Distribución de consumo por tipo de carne')
 st.markdown('En el siguiente gráfico se muestra la distribución de consumo por tipo de carne a nivel mundial. Se puede observar que el consumo de carne de ternera ha ido disminuyendo con el paso de los años a medida que aumenta el consumo de carne de pollo (aves). El consumo de carne de cordero es el más bajo.')
 
+# SELECTOR DE FECHAS
 year_to_filter = st.slider('Seleccionar año', 1993, 2028, 2023)
 grafico3 = plot_dispersion(df, year_to_filter)
 
@@ -116,20 +117,21 @@ elif meat_type == 'Aves':
 elif meat_type == 'Cordero':
     meat = 'SHEEP'
 
-
+# GRAFICO DE LOS 10 MAYORES CONSUMIDORES BARRAS HORIZONTALES #
 top10 = plot_top_consumers(df, year=year_to_filter, subject=meat)
-with st.spinner('Cargando gráfico...'):
+with st.spinner('Cargtando gráfico...'):
     df_year = select_year(df, year_to_filter)
     st.pyplot(top10)
     st.markdown('''En el gráfico anterior se muestran los 10 países que más carne consumen en el año seleccionado. El consumo se muestra en toneladas.
     ''')
 
 
-# CONSUMO POR TIPO DE CARNE #
+# CONSUMO POR TIPO DE CARNE LINEAS Y BARRAS #
 
 st.subheader('Consumo por tipo de carne')
 select = st.selectbox('Seleccionar país', lista_paises,
                       index=lista_paises.index('European Union'))
+
 tab1, tab2, tab3, tab4, tab5 = st.tabs(
     ["Todos", "Ternera", "Cerdo", "Aves", "Cordero"])
 
@@ -164,6 +166,7 @@ with tab5:
     grafico_cordero = plot_meat_subject(df, country=select, subject='SHEEP')
     st.pyplot(grafico_cordero)
 
+#                                                                                                                                    
 st.subheader("Contraste en escala de consumo para todos los tipos de carne")
 grafico = plot_meat_consumption(country=select)
 with st.spinner('Cargando gráfico...'):
